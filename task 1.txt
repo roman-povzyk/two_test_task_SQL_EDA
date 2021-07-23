@@ -1,0 +1,26 @@
+with main_actors as
+(
+  select fa.actor_id as id1, sa.actor_id as id2
+  from film_actor fa
+    inner join film_actor sa on fa.film_id=sa.film_id
+  where fa.actor_id <> sa.actor_id
+  group by fa.actor_id, sa.actor_id
+  order by count(fa.film_id) desc
+  limit 1
+)
+select
+(
+ select first_name || ' ' || last_name
+ from actor
+ where actor_id = ma.id1
+) as first_actor,
+(
+ select first_name || ' ' || last_name
+ from actor
+ where actor_id = ma.id2
+) as second_actor,
+  f.title as title
+from main_actors ma
+    inner join film_actor fa on ma.id1 = fa.actor_id
+    inner join film_actor sa on ma.id2 = sa.actor_id
+    inner join film f on fa.film_id=f.film_id and sa.film_id=f.film_id
